@@ -1,4 +1,5 @@
 import os
+from pprint import pprint
 from urllib.parse import urljoin, urlsplit
 
 import requests
@@ -58,6 +59,12 @@ def get_book_title(soup):
     return title[0].strip()
 
 
+def get_book_author(soup):
+    title_and_author = soup.find('h1').text
+    author = title_and_author.split('::')
+    return author[1].strip()
+
+
 def get_book_image_url(soup, book_page_url):
     img_rel_path = soup.find('div', class_='bookimage').find('img')['src']
     img_src = urljoin(book_page_url, img_rel_path)
@@ -74,19 +81,21 @@ def fetch_book_page_soup(url):
     return BeautifulSoup(response.text, 'lxml')
 
 
-def fetch_book_comments(soup):
+def get_book_comments(soup):
     raw_comments = soup.find_all('div', class_='texts')
     comments = []
     for raw_comment in raw_comments:
         comments.append(raw_comment.find('span', class_='black').text)
     return comments
 
-def fetch_book_genres(soup):
+
+def get_book_genres(soup):
     raw_genres = soup.find('span', class_='d_book').find_all('a')
     genres = []
     for raw_genre in raw_genres:
         genres.append(raw_genre.text)
     return genres
+
 
 def download_book(book_id):
     book_url = f'https://tululu.org/b{book_id}/'
@@ -101,11 +110,20 @@ def download_book(book_id):
     if image_src:
         download_image(image_src)
     download_txt(book_url, filename)
+    pprint(parse_book_page(soup))
 
-    comments = fetch_book_comments(soup)
-    print(comments)
-    genres = fetch_book_genres(soup)
-    print(genres)
+
+def parse_book_page(soup):
+    """Returns dict with author, title, genre"""
+
+    book_info = {
+        'author': get_book_author(soup),
+        'title': get_book_title(soup),
+        'genres': get_book_genres(soup),
+        'comments': get_book_comments(soup),
+    }
+    return book_info
+
 
 def main():
     for book_id in range(1, 10):
