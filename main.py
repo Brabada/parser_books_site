@@ -74,6 +74,14 @@ def fetch_book_page_soup(url):
     return BeautifulSoup(response.text, 'lxml')
 
 
+def fetch_book_comments(soup):
+    raw_comments = soup.find_all('div', class_='texts')
+    comments = []
+    for raw_comment in raw_comments:
+        comments.append(raw_comment.find('span', class_='black').text)
+    return comments
+
+
 def download_book(book_id):
     book_url = f'https://tululu.org/b{book_id}/'
     soup = fetch_book_page_soup(book_url)
@@ -87,6 +95,9 @@ def download_book(book_id):
     if image_src:
         download_image(image_src)
     download_txt(book_url, filename)
+
+    comments = fetch_book_comments(soup)
+    print(comments)
 
 
 def main():
