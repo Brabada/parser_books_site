@@ -81,6 +81,12 @@ def fetch_book_comments(soup):
         comments.append(raw_comment.find('span', class_='black').text)
     return comments
 
+def fetch_book_genres(soup):
+    raw_genres = soup.find('span', class_='d_book').find_all('a')
+    genres = []
+    for raw_genre in raw_genres:
+        genres.append(raw_genre.text)
+    return genres
 
 def download_book(book_id):
     book_url = f'https://tululu.org/b{book_id}/'
@@ -98,7 +104,8 @@ def download_book(book_id):
 
     comments = fetch_book_comments(soup)
     print(comments)
-
+    genres = fetch_book_genres(soup)
+    print(genres)
 
 def main():
     for book_id in range(1, 10):
