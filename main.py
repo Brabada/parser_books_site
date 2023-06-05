@@ -87,18 +87,17 @@ def fetch_book_page_soup(url):
 def get_book_comments(soup):
     """Return book comments[] from bs4 soup"""
     raw_comments = soup.find_all('div', class_='texts')
-    comments = []
-    for raw_comment in raw_comments:
-        comments.append(raw_comment.find('span', class_='black').text)
+    comments = [
+        comment.find('span', class_='black').text for comment in raw_comments]
+    logging.info(comments)
     return comments
 
 
 def get_book_genres(soup):
     """Returns book genres[] from bs4 soup"""
     raw_genres = soup.find('span', class_='d_book').find_all('a')
-    genres = []
-    for raw_genre in raw_genres:
-        genres.append(raw_genre.text)
+    genres = [raw_genre.text for raw_genre in raw_genres]
+    logging.info(genres)
     return genres
 
 
@@ -106,16 +105,14 @@ def download_book(book_id):
     """Downloads book txt and cover by book_id from tululu.org"""
     book_url = f'https://tululu.org/b{book_id}/'
     soup = fetch_book_page_soup(book_url)
-    if not soup:
-        return
 
     title = get_book_title(soup)
     filename = f'{book_id}. {title}'
 
     image_src = get_book_image_url(soup, book_url)
-    if image_src:
-        download_image(image_src)
+    download_image(image_src)
     download_txt(book_url, filename)
+    parse_book_page(soup)
 
 
 def parse_book_page(soup):
@@ -149,6 +146,7 @@ def init_arg_parser():
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     parser = init_arg_parser()
     args = parser.parse_args()
 
