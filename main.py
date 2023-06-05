@@ -12,7 +12,7 @@ from pathvalidate import sanitize_filename, sanitize_filepath
 def check_for_redirect(response):
     """Checking for redirect codes 3xx. If found any raises exception"""
     main_page_url = "https://tululu.org/"
-    if response.history and response.url == main_page_url:
+    if response.history :
         raise requests.HTTPError
 
 
@@ -106,25 +106,24 @@ def download_book(book_id):
     book_url = f'https://tululu.org/b{book_id}/'
     soup = fetch_book_page_soup(book_url)
 
-    title = get_book_title(soup)
-    filename = f'{book_id}. {title}'
+    book_page = parse_book_page(soup)
+    filename = f'{book_id}. {book_page["title"]}'
 
     image_src = get_book_image_url(soup, book_url)
     download_image(image_src)
     download_txt(book_url, filename)
-    parse_book_page(soup)
 
 
 def parse_book_page(soup):
     """Returns dict with author, title, genres[], comments[]"""
 
-    book_info = {
+    book_page = {
         'author': get_book_author(soup),
         'title': get_book_title(soup),
         'genres': get_book_genres(soup),
         'comments': get_book_comments(soup),
     }
-    return book_info
+    return book_page
 
 
 def init_arg_parser():
