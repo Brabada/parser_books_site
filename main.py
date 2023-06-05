@@ -43,10 +43,7 @@ def download_txt(url, filename, folder='books/'):
 
     response = requests.get(url)
     response.raise_for_status()
-    try:
-        check_for_redirect(response)
-    except requests.HTTPError:
-        return
+    check_for_redirect(response)
 
     filename = sanitize_filename(filename)
     book_name = f'{filename}.txt'
@@ -81,10 +78,7 @@ def fetch_book_page_soup(url):
     """Fetched bs4 soup from url"""
     response = requests.get(url)
     response.raise_for_status()
-    try:
-        check_for_redirect(response)
-    except requests.HTTPError:
-        return
+    check_for_redirect(response)
     return BeautifulSoup(response.text, 'lxml')
 
 
@@ -157,7 +151,10 @@ def main():
     args = parser.parse_args()
 
     for book_id in range(args.start_id, args.end_id+1):
-        download_book(book_id)
+        try:
+            download_book(book_id)
+        except requests.HTTPError:
+            pass
 
 
 if __name__ == "__main__":
