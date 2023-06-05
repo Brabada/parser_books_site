@@ -2,6 +2,7 @@ import os
 from urllib.parse import urljoin, urlsplit
 import argparse
 import logging
+from time import sleep
 
 import requests
 from bs4 import BeautifulSoup
@@ -154,8 +155,13 @@ def main():
     for book_id in range(args.start_id, args.end_id+1):
         try:
             download_book(book_id)
+            logging.info(f'Book {book_id} downloaded.')
         except requests.HTTPError:
             logging.warning(f'Book (id {book_id}) not found on server.')
+        except requests.ConnectionError:
+            logging.warning(f'Book {book_id} can\'t be downloaded via '
+                            f'connection error.')
+            sleep(5)
 
 
 if __name__ == "__main__":
