@@ -2,4 +2,4 @@ books/
 images/
 venv/
 .idea/
-*.txt
+txt/
