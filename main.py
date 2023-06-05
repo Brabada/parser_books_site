@@ -1,6 +1,7 @@
 import os
 from urllib.parse import urljoin, urlsplit
 import argparse
+import logging
 
 import requests
 from bs4 import BeautifulSoup
@@ -154,7 +155,7 @@ def main():
         try:
             download_book(book_id)
         except requests.HTTPError:
-            pass
+            logging.warning(f'Book (id {book_id}) not found on server.')
 
 
 if __name__ == "__main__":
